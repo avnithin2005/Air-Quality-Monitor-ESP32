@@ -1,0 +1,45 @@
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define OLED_RESET    -1
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
+int gasPin = 34; // Analog pin connected to MQ sensor
+
+void setup() {
+  Serial.begin(115200);
+
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    for(;;);
+  }
+  display.clearDisplay();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+}
+
+void loop() {
+  int gasValue = analogRead(gasPin);  // Read sensor value
+  float ppm = (gasValue / 4095.0) * 1000; // Scale to ppm (example formula)
+
+  Serial.print("Gas Value: ");
+  Serial.print(gasValue);
+  Serial.print(" | PPM: ");
+  Serial.println(ppm);
+
+  // Display on OLED
+  display.clearDisplay();
+  display.setCursor(0, 10);
+  display.setTextSize(1);
+  display.println("Air Quality Monitor");
+  display.setTextSize(2);
+  display.setCursor(0, 30);
+  display.print(ppm);
+  display.println(" ppm");
+  display.display();
+
+  delay(2000);
+}
